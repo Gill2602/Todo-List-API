@@ -1,0 +1,11 @@
+services:
+  mariadb:
+    image: mariadb:11.7.2-ubi9
+    container_name: ToDo-List-Container
+    environment:
+      MYSQL_ROOT_PASSWORD: SecretPassword
+      MYSQL_USER: ExampleUser
+      MYSQL_PASSWORD: SimplePassword
+      MYSQL_DATABASE: ToDoDatabase
+    ports:
+      - "3306:3306"
