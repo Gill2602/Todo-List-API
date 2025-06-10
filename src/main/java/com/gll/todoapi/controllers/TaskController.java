@@ -49,7 +49,7 @@ public class TaskController {
     }
 
     @GetMapping()
-    public ResponseEntity<Page<TaskResponse>> deleteTask(@AuthenticationPrincipal UserDetails userDetails,
+    public ResponseEntity<Page<TaskResponse>> realAllTask(@AuthenticationPrincipal UserDetails userDetails,
                                                          Pageable pageable) {
         return new ResponseEntity<>(taskService.readAll(pageable, userDetails), HttpStatus.OK);
     }

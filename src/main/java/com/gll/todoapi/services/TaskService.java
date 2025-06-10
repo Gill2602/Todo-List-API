@@ -2,6 +2,7 @@ package com.gll.todoapi.services;
 
 import com.gll.todoapi.entities.TaskEntity;
 import com.gll.todoapi.entities.UserEntity;
+import com.gll.todoapi.entities.enums.TaskProgress;
 import com.gll.todoapi.exceptions.NotFoundException;
 import com.gll.todoapi.exceptions.UnauthorizedException;
 import com.gll.todoapi.repositories.TaskRepository;
@@ -15,6 +16,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 public class TaskService {
@@ -22,7 +25,6 @@ public class TaskService {
     private final UserRepository userRepository;
     private final TaskRepository taskRepository;
 
-    // Create task by User
     public TaskResponse create(TaskRequest request, UserDetails userDetails) {
         UserEntity user = userRepository.findByEmail(userDetails.getUsername())
                 .orElseThrow(() -> new NotFoundException("Not found user with email: " + userDetails.getUsername()));
@@ -30,12 +32,22 @@ public class TaskService {
         TaskEntity task = TaskEntity.builder()
                 .title(request.title())
                 .description(request.description())
+                .progress(TaskProgress.TO_DO)
                 .user(user)
                 .build();
 
+        Optional.ofNullable(request.expirationDate()).ifPresent(task::setExpirationDate);
+        Optional.ofNullable(request.taskProgress()).ifPresent(task::setProgress);
+
         TaskEntity savedTask = taskRepository.save(task);
 
-        return new TaskResponse(savedTask.getId(), savedTask.getTitle(), savedTask.getDescription());
+        return new TaskResponse(
+                savedTask.getId(),
+                savedTask.getTitle(),
+                savedTask.getDescription(),
+                savedTask.getProgress(),
+                savedTask.getExpirationDate()
+        );
     }
 
     public TaskResponse update(TaskRequest request, Long id, UserDetails userDetails) {
@@ -53,9 +65,18 @@ public class TaskService {
             result.setDescription(request.description());
         }
 
+        Optional.ofNullable(request.expirationDate()).ifPresent(result::setExpirationDate);
+        Optional.ofNullable(request.taskProgress()).ifPresent(result::setProgress);
+
         TaskEntity updatedTask = taskRepository.save(result);
 
-        return new TaskResponse(updatedTask.getId(), updatedTask.getTitle(), updatedTask.getDescription());
+        return new TaskResponse(
+                updatedTask.getId(),
+                updatedTask.getTitle(),
+                updatedTask.getDescription(),
+                updatedTask.getProgress(),
+                updatedTask.getExpirationDate()
+        );
     }
 
     public void delete(Long id, UserDetails userDetails) {
@@ -75,8 +96,12 @@ public class TaskService {
 
         return taskRepository.findAllByUser(user, pageable)
                 .map(taskEntity -> new TaskResponse(
-                        taskEntity.getId(), taskEntity.getTitle(), taskEntity.getDescription())
-                );
+                        taskEntity.getId(),
+                        taskEntity.getTitle(),
+                        taskEntity.getDescription(),
+                        taskEntity.getProgress(),
+                        taskEntity.getExpirationDate()
+                ));
     }
 
     private boolean isOwner(TaskEntity result, UserDetails userDetails) {

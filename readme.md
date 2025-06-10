@@ -49,8 +49,8 @@ Response:
 ```
 
 - Email must be unique.
-- Password should be hashed before storing.
-- A JWT or similar token is returned upon successful registration.
+- Password is hashed before storing.
+- A JWT token is returned upon successful registration.
 
 #### 🔐 Login
 
@@ -91,7 +91,8 @@ Request:
 ```json
 {
   "title": "Buy groceries",
-  "description": "Buy milk, eggs, and bread"
+  "description": "Buy milk, eggs, and bread",
+  "expirationDate": "2025-07-27"
 }
 ```
 
@@ -101,7 +102,9 @@ Response:
 {
   "id": 1,
   "title": "Buy groceries",
-  "description": "Buy milk, eggs, and bread"
+  "description": "Buy milk, eggs, and bread",
+  "progress": "TO_DO",
+  "expirationDate": "2025-07-27"
 }
 ```
 
@@ -114,7 +117,9 @@ Request:
 ```json
 {
   "title": "Buy groceries",
-  "description": "Buy milk, eggs, bread, and cheese"
+  "description": "Buy milk, eggs, bread, and cheese",
+  "progress": "IN_PROGRESS",
+  "expirationDate": "2025-07-27"
 }
 ```
 
@@ -129,28 +134,41 @@ Responses:
 - `204 No Content` if deleted
 - `403 Forbidden` if the user is not authorized
 
-#### 📄 List To-Dos
+#### 📄 Read All To-Dos
 
-`GET /todos?page=1&size=10`
+`GET /todos?page=0&size=10`
 
 Response:
 
 ```json
 {
-  "data": [
+  "content": [
     {
-      "id": 1,
+      "id": 7,
       "title": "Buy groceries",
-      "description": "Buy milk, eggs, bread"
+      "description": "Buy milk, eggs, and bread",
+      "progress": "CANCELLED",
+      "expirationDate": null
     },
     {
-      "id": 2,
-      "title": "Pay bills",
-      "description": "Pay electricity and water bills"
+      "id": 8,
+      "title": "Buy groceries",
+      "description": "Buy milk, eggs, and bread",
+      "progress": "CANCELLED",
+      "expirationDate": null
     }
   ],
-  "page": 1,
-  "limit": 10,
-  "total": 2
+  "pageable": {
+    "pageNumber": 0,
+    "pageSize": 10,
+    "sort": {
+      "empty": true,
+      "sorted": false,
+      "unsorted": true
+    },
+    "offset": 0,
+    "paged": true,
+    "unpaged": false
+  }
 }
 ```
